@@ -18,4 +18,10 @@ User can view data in the charts.
 ![IMG 4](images/img_2.png)
 
 
+<img src="images/img_1.png" alt="IMG 1" width="400"/>
+<img src="https://example.com/obrazek.png" alt="Przykładowy obrazek" width="400"/>
+<img src="https://example.com/obrazek.png" alt="Przykładowy obrazek" width="400"/>
+<img src="https://example.com/obrazek.png" alt="Przykładowy obrazek" width="400"/>
+
+
 
