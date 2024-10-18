@@ -9,9 +9,9 @@ from CTkListbox import *
 import pandas as pd
 from tkinter import filedialog
 
-# Instances in aan app class
+# Instances in an app class:
 # analyze_File_data  -  an instance of a File class, created after choosing model from a list
-# models_File_data   -  lis of an instances of a File class
+# models_File_data   -  lis of instances of a File class
 
 
 class MainWindow(ctk.CTkFrame):
@@ -39,7 +39,7 @@ class Frame_Left_Ribbon(ctk.CTkFrame):
         self.ButtonNewModel.grid(row=0, padx=10, pady=(10,5), sticky='ew')
         self.ButtonTrainModel = ctk.CTkButton(self,  text = 'Add data', state='disabled', command=lambda:[self.create_window(master.root, 'TrainModelWindow') ,cmd.show_window(master.root, 'TrainModelWindow')])
         self.ButtonTrainModel.grid(row=2, padx=10, pady=5, sticky='ew')
-        self.ButtonPlots = ctk.CTkButton(self,  text = 'Plots', state='disabled', command=lambda:[self.create_window(master.root, 'PlotsWindow') ,cmd.show_window(master.root, 'PlotsWindow')])
+        self.ButtonPlots = ctk.CTkButton(self,  text = 'Charts', state='disabled', command=lambda:[self.create_window(master.root, 'PlotsWindow') ,cmd.show_window(master.root, 'PlotsWindow')])
         self.ButtonPlots.grid(row=3, padx=10, pady=(5,10), sticky='ew')
 
         self.FrameSavedModels = Frame_Saved_Models(self, 'Saved models')
@@ -102,6 +102,7 @@ class Frame_Saved_Models(ctk.CTkFrame):
         self.model_picked = True
         if self.Master.master.Drop_Box.file_dropped:
             self.Master.ButtonTrainModel.configure(state="normal")
+
 
 class DropBox(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -243,7 +244,7 @@ class NewModelWindow(ctk.CTkFrame):
 
 
 class ScrollabableFrame(ctk.CTkScrollableFrame):
-    def __init__(self, master, data: File, indexes: list[int]= [-1]):
+    def __init__(self, master, data: File, indexes: list[int] = [-1], predictions = [-1]):
         super().__init__(master)
         if indexes[0] == -1:
             rows = [row for row in range(2*len(data.expences))]
@@ -277,7 +278,7 @@ class ScrollabableFrame(ctk.CTkScrollableFrame):
                 self.Label = ctk.CTkLabel(self, text = desc, justify="center")
                 self.Label.grid(row=k, column = 0, columnspan=len(columns), padx=10, pady=10)
                 
-                button_var = ctk.IntVar(value=-1)
+                button_var = ctk.IntVar(value=predictions[indexes[i]])
                 for j in range(len(columns)):
                     self.ButtonModel = ctk.CTkRadioButton(self,  text = data.categories[j], value=j, variable=button_var)
                     self.ButtonModel.grid(row=k+1,column=j, columnspan=1, padx=10, pady=(0,15))
@@ -311,12 +312,6 @@ class PlotsWindow(ctk.CTkFrame):
         self.last_month_plot.grid(row=0, column=0, sticky="nsew")
         self.all_data_plot = PlotsWindow_2(self.tab_viev.tab('All Data'), self.root)
         self.all_data_plot.grid(row=0, column=0, sticky="nsew")
-
-
-
-
-
-
 
 
 
@@ -362,7 +357,7 @@ class PlotsWindow_1(tk.PanedWindow):
         self.scroll_bar.grid_rowconfigure(rows, weight = 0)
         self.scroll_bar.grid_columnconfigure(0, weight = 0)
         self.dropdown_list = ctk.CTkComboBox(self.list_frame, values=self.master.analyze_File_data.periods_str, state='readonly', command=self.select_period)
-        self.dropdown_list.grid(row=0, column=3, sticky='ew')
+        self.dropdown_list.grid(row=0, column=3, padx=5, sticky='ew')
         self.dropdown_list.set(self.master.analyze_File_data.periods_str[-1])
         self.period = self.master.analyze_File_data.periods[-1]
 
@@ -616,18 +611,18 @@ class TrainModelWindow(ctk.CTkFrame):
 
         self.old_data = root.analyze_File_data
 
-        # Wczytać podany plik
+        # Load given file
         self.new_data = File(root._pdfPath)
         self.new_data.categories = self.old_data.categories
-        # Wczytać model AI i tokenizer
+        # Load AI model and tokenizer
         self.model, self.tokenizer = load_model_and_tokenizer(root.model_name, root.model_name+'_token')
-        # Przewidzieć modelem klasy transaksji, wyłapać te kóre użytkownik musiałby poprawić
+        # Predict classes of transactions, catch those transactions that needs verification
         self.predicted_classes, self.indexes_to_correct = predict(self.model, self.tokenizer, self.new_data)
 
-        # Wyświetlić te transakcje aby użytkownik skorygował ich klasy
+        # Display transactions that need verification
         self.Label = ctk.CTkLabel(self, text = 'Categorize transactions', font=("Helvetica", 16, "bold"), justify="center")
         self.Label.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
-        self.ScrollFrame = ScrollabableFrame(self, self.new_data, self.indexes_to_correct)
+        self.ScrollFrame = ScrollabableFrame(self, self.new_data, self.indexes_to_correct, self.predicted_classes)
         self.ScrollFrame.grid(row=1, column=0, columnspan=4, padx=10, pady=(0,10), sticky = 'nsew')
         self.ButtonPrevious = ctk.CTkButton(self, text = 'Confirm', command=lambda:[self.organize_File_data(), self.organize_AI_model(), cmd.show_window(root, 'MainWindow'), root.windows['MainWindow'].Left_Frame.FrameSavedModels.saved_models_refresh()])
         self.ButtonPrevious.grid(row=2, column=3, padx=10, pady=10)
@@ -649,7 +644,6 @@ class TrainModelWindow(ctk.CTkFrame):
         self.old_data.save_data(self.root.model_name)
 
     def organize_AI_model(self):
-        # Próba trenowania całkiem nowego  modelu
         #Creates and trains model
         self.model, self.tokenizer = model(self.old_data.exp_seq, self.old_data.expences['Labels'])
         #Saves model and tokenizer
