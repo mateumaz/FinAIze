@@ -14,11 +14,9 @@ Next time, adding data for the next period, the AI model is used to categorize t
 
 User can view divided data on charts that can be manipulated. After clicking on one of the bars, list of transactions from this category appears at the bottom.
 
-App is functional and all functionalities described above work, but app is still being developed. For now app only supports bank statements from mBank. 
-
 <img src="images/img_2.png" alt="IMG 4" width="700"/>
 
-
+App is functional and all functionalities described above work, but app is still being developed. For now app only supports bank statements from mBank. 
 
 
 
