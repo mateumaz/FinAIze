@@ -15,6 +15,7 @@ from keras.callbacks import EarlyStopping
 from sklearn.model_selection import KFold
 
 
+# Used during verifing model
 class CustomEarlyStoppingByAccuracy(Callback):
     def __init__(self, monitor='accuracy', target=0.95, verbose=1):
         super(CustomEarlyStoppingByAccuracy, self).__init__()
@@ -42,7 +43,6 @@ def model(sequences, labels):
     padded_sequences = pad_sequences(sequences, maxlen=5)
     labels = np.array(labels)
 
-    # Unikalne klasy
     classes = np.unique(labels)
 
     model = tf.keras.Sequential([
@@ -52,10 +52,10 @@ def model(sequences, labels):
         tf.keras.layers.Dense(len(classes), activation='softmax')
     ])
 
-    target_accuracy = 0.95
-    early_stopping = CustomEarlyStoppingByAccuracy(monitor='accuracy', target=target_accuracy, verbose=1)
+    # Used in tests
+    # target_accuracy = 0.95
+    # early_stopping = CustomEarlyStoppingByAccuracy(monitor='accuracy', target=target_accuracy, verbose=1)
 
-    # Obliczanie wag klas
     class_weights = compute_class_weight(class_weight='balanced', classes=classes, y=labels)
     focal_loss = CategoricalFocalCrossentropy(alpha=class_weights)
     labels_one_hot = to_categorical(labels, num_classes=len(classes))
@@ -94,7 +94,7 @@ def predict(model: tf.keras.Sequential, tokenizer: Tokenizer, data: File) -> lis
 
     predictions = model.predict(padded_test_sequences)
 
-    # przygotowanie dataframea do zapisu wag do pliku csv --------------------------------------------------------------------------------------------------------
+    # DataFrame preperation for saving wages in csv file--------------------------------------------------------------------------------------------------------
     headers = ['0', '1', '2', '3', '4', '5', '6']
     cat0 = []
     cat1 = []
@@ -127,17 +127,21 @@ def predict(model: tf.keras.Sequential, tokenizer: Tokenizer, data: File) -> lis
     predicted_classes = [pred for pred in predicted_classes]
 
     # Finding uncertain predictions
+    
     # 1st method 
-    sorted_predictions = np.sort(predictions, axis=1)[:, ::-1]
-    max_values = sorted_predictions[:, 0]
-    second_max_values = sorted_predictions[:, 1]
-    differences = max_values - second_max_values
-    correction_indexes = []
+    # sorted_predictions = np.sort(predictions, axis=1)[:, ::-1]
+    # max_values = sorted_predictions[:, 0]
+    # second_max_values = sorted_predictions[:, 1]
+    # differences = max_values - second_max_values
+    # correction_indexes = []
     # for i in range(len(differences)):
     #     if differences[i] < 0.75:
     #         correction_indexes.append(i)
 
     # 2nd method
+    sorted_predictions = np.sort(predictions, axis=1)[:, ::-1]
+    max_values = sorted_predictions[:, 0]
+    correction_indexes = []
     confidences = [max(pred) for pred in predictions]
     percentile = 15
     treshold = np.percentile(confidences, percentile)
@@ -146,7 +150,7 @@ def predict(model: tf.keras.Sequential, tokenizer: Tokenizer, data: File) -> lis
             correction_indexes.append(i)
     print(treshold)
 
-    # zapis do pliku csv --------------------------------------------------------------------------------------------------------------------
+    # Save csv --------------------------------------------------------------------------------------------------------------------
     to_correct = [0 for _ in range(len(predicted_classes))]
     for index in correction_indexes:
         to_correct[index] = 1
@@ -164,7 +168,7 @@ def predict(model: tf.keras.Sequential, tokenizer: Tokenizer, data: File) -> lis
 
 def train_model(model :tf.keras.Sequential, tokenizer: Tokenizer, data: File) -> None:
     
-    kf = KFold(n_splits=5, shuffle = True)  # Podziel dane na 5 części
+    kf = KFold(n_splits=5, shuffle = True) 
     X = data.exp_seq 
     y = [data.expences.loc[i,'Labels'] for i in range(len(data.expences))]
     

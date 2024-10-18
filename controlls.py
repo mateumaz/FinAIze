@@ -7,7 +7,6 @@ import datetime
 import calendar
 from collections import OrderedDict
 
-# Pomysł - zrobić klase do wykresu, kóra będzie zawierała różne przydatne metody
 
 def show_window(app, page_name):
         frame = app.windows[page_name]

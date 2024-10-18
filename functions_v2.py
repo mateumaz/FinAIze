@@ -6,7 +6,6 @@ import datetime
 import re
 
 
-
 class File:
     def __init__(self, path='', name='') -> 'File':
         if name == '':
@@ -351,39 +350,3 @@ class File:
                 del data[col_name]
         data.columns = valid_columns.values()
         return data
-
-
-
-
-
-    
-
-
-
-def label_str(labels: dict):
-    out = "Labels: "
-    for i in range(len(labels)):
-        out = out + f'{labels[i]}->{i}   '
-    return out
-
-
-
-def get_whole_summary(sum :pd.DataFrame, exp :pd.DataFrame, rev :pd.DataFrame):
-    # Count a total of every category 
-    sums = []
-    for i in range(len(sum)):
-        acc = 0
-        for j in range(len(exp)):
-            if exp.loc[j,'Kategoria'] == sum.loc[i,'Kategoria']: 
-                acc = acc + abs(float(exp.loc[j,'Kwota']))
-        sums.append(acc)
-    sum['Suma'] = sums
-
-    #Count and add a total of revenue
-    acc = 0
-    for i in range(len(rev)):
-        acc = acc + float(rev.loc[i,'Kwota'])  
-    new_row = {'Kategoria': 'Przychody', 'Suma': acc} 
-    sum.loc[len(sum)] = new_row    
-    return sum
-
