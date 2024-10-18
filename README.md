@@ -1,4 +1,6 @@
 # FinAIze
+
+### Description
 FinAIze is an app for analyzing finances which uses AI to categorize transactions.
 App makes analyzing finances easier and faster. You don't need to input everything manually to excel anymore. App accepts bank statements in pdf format and automatically extracts from them necessary data. Then user can decide how many categories to divide transactions into.
 
