@@ -1,0 +1,12 @@
+customtkinter
+tkinter
+CTKListBox
+tkinterdnd2 
+numpy
+matplotlib
+mplcursors
+tabula
+pandas
+tensorflow
+keras
+sklearn
